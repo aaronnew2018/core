@@ -244,6 +244,19 @@ class OccContext implements Context {
 	}
 
 	/**
+	 * @When the administrator retrieves the last seen of user :username using the occ command
+	 *
+	 * @param string $username
+	 *
+	 * @return void
+	 */
+	public function theAdministratorRetrievesTheLastSeenOfUserUsingTheOccCommand($username) {
+		$this->featureContext->invokingTheCommand(
+			"user:lastseen $username"
+		);
+	}
+
+	/**
 	 * @When the administrator sends a group creation request for group :group using the occ command
 	 *
 	 * @param string $group
@@ -498,6 +511,30 @@ class OccContext implements Context {
 		$lastOutputUser = \json_decode($lastOutput, true);
 		$lastOutputDisplayName = \array_column($lastOutputUser, 'displayName')[0];
 		PHPUnit_Framework_Assert::assertEquals($displayName, $lastOutputDisplayName);
+	}
+
+	/**
+	 * @Then the command output of user last seen should be recently
+	 *
+	 * @return void
+	 */
+	public function theCommandOutputOfUserLastSeenShouldBeRecently() {
+		$currentTime = \gmdate('d.m.Y H:i');
+		$lastOutput = $this->featureContext->getStdOutOfOccCommand();
+		PHPUnit_Framework_Assert::assertContains($currentTime, $lastOutput);
+	}
+
+	/**
+	 * @Then the command output of user last seen should be never
+	 *
+	 * @return void
+	 */
+	public function theCommandOutputOfUserLastSeenShouldBeNever() {
+		$lastOutput = $this->featureContext->getStdOutOfOccCommand();
+		PHPUnit_Framework_Assert::assertContains(
+			"has never logged in, yet.",
+			$lastOutput
+		);
 	}
 
 	/**
